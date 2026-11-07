@@ -318,22 +318,77 @@ img {
 }
 
 /* themes */
+/* themes */
 .themes {
+  counter-reset: pill;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 .pill {
-  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  padding: 2.6rem 1.6rem 2.2rem;
   text-align: center;
-  border: 1.5px solid var(--gold);
+  border: 1.5px solid rgba(216, 178, 90, 0.55);
   border-radius: 26px;
-  background: var(--pine);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(31, 209, 139, 0.16),
+      transparent 60%
+    ),
+    linear-gradient(160deg, var(--pine-2), var(--pine));
+  box-shadow:
+    inset 0 0 40px rgba(31, 209, 139, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+/* faint number in the corner */
+.pill::before {
+  counter-increment: pill;
+  content: "0" counter(pill);
+  position: absolute;
+  top: 0.9rem;
+  right: 1.3rem;
+  font: 700 2.6rem/1 var(--serif);
+  color: rgba(216, 178, 90, 0.22);
+}
+/* gold accent line on top */
+.pill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(90deg, transparent, var(--gold-hi), transparent);
+}
+.pill:hover {
+  transform: translateY(-6px);
+  border-color: var(--gold-hi);
+  box-shadow:
+    inset 0 0 40px rgba(31, 209, 139, 0.1),
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 34px rgba(216, 178, 90, 0.22);
 }
 .pill svg {
-  width: 54px;
-  height: 54px;
-  margin: 0 auto 1rem;
+  width: 84px;
+  height: 84px;
+  padding: 20px;
+  margin: 0 auto 1.3rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: radial-gradient(
+    circle,
+    rgba(216, 178, 90, 0.18),
+    rgba(4, 19, 14, 0.6)
+  );
+  box-shadow: 0 0 24px rgba(216, 178, 90, 0.2);
   fill: none;
   stroke: var(--gold-hi);
   stroke-width: 2;
@@ -341,7 +396,7 @@ img {
   stroke-linejoin: round;
 }
 .pill h3 {
-  font: 700 1.5rem var(--serif);
+  font: 700 1.6rem/1.2 var(--serif);
   color: var(--gold-hi);
   margin-bottom: 0.5rem;
 }
@@ -968,6 +1023,15 @@ input:focus {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .pill {
+    transition: none;
+  }
+  .pill:hover {
+    transform: none;
+  }
+}
+
 .vp-wrap {
   display: flex;
   align-items: center;
@@ -1071,4 +1135,40 @@ input:focus {
   max-height: none;
   aspect-ratio: auto;
   border-radius: 0;
+}
+
+.teaser {
+  display: none !important;
+}
+
+/* ===== Phones showing the desktop layout (only active with .m-desktop) ===== */
+
+/* 100svh would be huge on a scaled-down phone, so use a fixed hero height */
+.m-desktop .hero {
+  min-height: 720px;
+}
+
+/* keep the floating teaser readable once everything is scaled down */
+.m-desktop .teaser {
+  width: 360px;
+  right: 24px;
+  bottom: 24px;
+}
+.m-desktop .teaser-close {
+  width: 48px;
+  height: 48px;
+  top: -18px;
+  right: -18px;
+  font-size: 1.6rem;
+}
+.m-desktop .teaser-label {
+  font-size: 1.2rem;
+  padding: 0.8rem 1rem;
+}
+
+/* bigger close button for the video popup */
+.m-desktop .lightbox-close {
+  width: 80px;
+  height: 80px;
+  font-size: 2.6rem;
 }
