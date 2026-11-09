@@ -149,21 +149,143 @@ document.querySelectorAll(".ph img, .teaser-thumb img").forEach((img) => {
   });
 })();
 
-/* Themes video player: Facebook embed with prev/next */
+/* ===== Facebook SDK loader (loads once, only for the Themes player) ===== */
+const FB_VERSION = "v23.0"; // if the SDK stops working, update to the latest version
+let fbState = "idle"; // idle | loading | ready | failed
+const fbQueue = [];
+window.fbAsyncInit = function () {
+  FB.init({ xfbml: false, version: FB_VERSION });
+  fbState = "ready";
+  fbQueue.splice(0).forEach((fn) => fn(true));
+};
+function whenFB(cb) {
+  if (fbState === "ready") return cb(true);
+  if (fbState === "failed") return cb(false);
+  fbQueue.push(cb);
+  if (fbState === "idle") {
+    fbState = "loading";
+    const s = document.createElement("script");
+    s.src = "https://connect.facebook.net/en_US/sdk.js";
+    s.async = true;
+    s.onerror = () => {
+      fbState = "failed";
+      fbQueue.splice(0).forEach((fn) => fn(false));
+    };
+    document.body.appendChild(s);
+  }
+}
+
+/* ===== Themes video player: SDK autoplay, auto-advance, loop, iframe fallback ===== */
 (function () {
   const frame = document.getElementById("vp");
   if (!frame || !PLAYLIST.length) return;
-  const player = document.getElementById("vpMain"),
+  const stage = document.getElementById("vpMain"),
     label = document.getElementById("vpTitle");
-  const n = PLAYLIST.length;
-  let cur = 0;
+  const n = PLAYLIST.length,
+    reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cur = 0,
+    inView = false,
+    userPaused = false,
+    ignoreUntil = 0,
+    wantPlay = false,
+    mode = "sdk", // "sdk" or "iframe" (fallback)
+    token = 0,
+    player = null,
+    handles = [],
+    timer = null,
+    subscribed = false;
+
+  function clearPlayer() {
+    handles.forEach((h) => {
+      try {
+        h.release();
+      } catch (e) {}
+    });
+    handles = [];
+    player = null;
+    clearTimeout(timer);
+    stage.innerHTML = "";
+  }
+
+  /* Fallback: the plain embed (no autoplay control) */
+  function useIframe(autoplay) {
+    mode = "iframe";
+    token++;
+    clearPlayer();
+    const f = document.createElement("iframe");
+    f.title = "Forum video";
+    f.allow =
+      "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
+    f.allowFullscreen = true;
+    f.src = fbSrc(PLAYLIST[cur].fb, autoplay);
+    stage.appendChild(f);
+  }
+
+  function play() {
+    if (!player) return;
+    ignoreUntil = Date.now() + 600;
+    try {
+      player.play();
+    } catch (e) {}
+  }
+
+  function onReady(msg) {
+    if (msg.type !== "video") return;
+    if (msg.id && msg.id !== "fbv" + token) return;
+    clearTimeout(timer);
+    player = msg.instance;
+    handles.push(
+      player.subscribe("finishedPlaying", () => go(cur + 1, true)),
+      player.subscribe("startedPlaying", () => {
+        userPaused = false;
+      }),
+      player.subscribe("paused", () => {
+        if (inView && Date.now() > ignoreUntil) userPaused = true;
+      }),
+      player.subscribe("error", () => useIframe(false)),
+    );
+    if ((wantPlay || inView) && !userPaused && !reduce) {
+      try {
+        player.mute(); // browsers only allow autoplay when muted
+      } catch (e) {}
+      play();
+    }
+  }
 
   function go(i, autoplay) {
     cur = (i + n) % n;
     const v = PLAYLIST[cur];
-    player.src = fbSrc(v.fb, autoplay);
     label.textContent =
       "Video " + (cur + 1) + " of " + n + (v.title ? " · " + v.title : "");
+    wantPlay = !!autoplay;
+    if (autoplay) userPaused = false;
+    if (mode === "iframe") return useIframe(autoplay);
+
+    clearPlayer();
+    const my = ++token;
+    const box = document.createElement("div");
+    box.id = "fbv" + my;
+    box.className = "fb-video";
+    box.setAttribute("data-href", v.fb);
+    box.setAttribute("data-width", Math.round(stage.clientWidth) || 800);
+    box.setAttribute("data-allowfullscreen", "true");
+    box.setAttribute("data-show-text", "false");
+    stage.appendChild(box);
+
+    /* if the SDK never produces a player, switch to the iframe */
+    timer = setTimeout(() => {
+      if (my === token) useIframe(autoplay);
+    }, 8000);
+
+    whenFB((ok) => {
+      if (my !== token) return;
+      if (!ok) return useIframe(autoplay);
+      if (!subscribed) {
+        FB.Event.subscribe("xfbml.ready", onReady);
+        subscribed = true;
+      }
+      FB.XFBML.parse(stage);
+    });
   }
 
   document
@@ -174,4 +296,22 @@ document.querySelectorAll(".ph img, .teaser-thumb img").forEach((img) => {
     .addEventListener("click", () => go(cur + 1, true));
 
   go(0, false);
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([en]) => {
+        inView = en.isIntersecting;
+        if (!player) return;
+        if (inView) {
+          if (!userPaused && !reduce) play();
+        } else {
+          ignoreUntil = Date.now() + 600;
+          try {
+            player.pause();
+          } catch (e) {}
+        }
+      },
+      { threshold: 0.4 },
+    ).observe(frame);
+  }
 })();

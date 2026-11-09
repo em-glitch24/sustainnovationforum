@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="fb-root"></div>
     <header class="nav">
       <a class="brand" href="#top">2nd Sustainnovation Forum</a>
       <nav aria-label="Main">
@@ -125,19 +126,7 @@
               aria-roledescription="carousel"
               aria-label="Forum videos"
             >
-              <iframe
-                id="vpMain"
-                title="Forum video"
-                allow="
-                  autoplay;
-                  clipboard-write;
-                  encrypted-media;
-                  picture-in-picture;
-                  web-share;
-                "
-                allowfullscreen
-                loading="lazy"
-              ></iframe>
+              <div id="vpMain" class="vp-stage"></div>
               <p class="vp-title" id="vpTitle" aria-live="polite"></p>
             </div>
 
