@@ -186,6 +186,7 @@ function whenFB(cb) {
   let cur = 0,
     inView = false,
     userPaused = false,
+    playing = false,
     ignoreUntil = 0,
     wantPlay = false,
     mode = "sdk", // "sdk" or "iframe" (fallback)
@@ -193,6 +194,7 @@ function whenFB(cb) {
     player = null,
     handles = [],
     timer = null,
+    retry = [],
     subscribed = false;
 
   function clearPlayer() {
@@ -203,12 +205,16 @@ function whenFB(cb) {
     });
     handles = [];
     player = null;
+    playing = false;
     clearTimeout(timer);
+    retry.forEach(clearTimeout);
+    retry = [];
     stage.innerHTML = "";
   }
 
   /* Fallback: the plain embed (no autoplay control) */
   function useIframe(autoplay) {
+    console.info("[video] using plain iframe (no autoplay control)");
     mode = "iframe";
     token++;
     clearPlayer();
@@ -221,35 +227,49 @@ function whenFB(cb) {
     stage.appendChild(f);
   }
 
-  function play() {
-    if (!player) return;
-    ignoreUntil = Date.now() + 600;
+  function tryPlay() {
+    if (!player || userPaused || reduce) return;
+    ignoreUntil = Date.now() + 1500; // our own play/pause events don't count as the visitor pausing
+    try {
+      player.mute(); // browsers only allow autoplay when muted
+    } catch (e) {}
     try {
       player.play();
     } catch (e) {}
+  }
+
+  /* the player can ignore the first play() call, so retry a couple of times */
+  function playWithRetry() {
+    retry.forEach(clearTimeout);
+    retry = [0, 600, 1500, 3000].map((ms) =>
+      setTimeout(() => {
+        if (player && (inView || wantPlay) && !playing) tryPlay();
+      }, ms),
+    );
   }
 
   function onReady(msg) {
     if (msg.type !== "video") return;
     if (msg.id && msg.id !== "fbv" + token) return;
     clearTimeout(timer);
+    console.info("[video] sdk player ready");
     player = msg.instance;
     handles.push(
-      player.subscribe("finishedPlaying", () => go(cur + 1, true)),
+      player.subscribe("finishedPlaying", () => {
+        playing = false;
+        go(cur + 1, true);
+      }),
       player.subscribe("startedPlaying", () => {
+        playing = true;
         userPaused = false;
       }),
       player.subscribe("paused", () => {
+        playing = false;
         if (inView && Date.now() > ignoreUntil) userPaused = true;
       }),
-      player.subscribe("error", () => useIframe(false)),
+      player.subscribe("error", () => useIframe(inView)),
     );
-    if ((wantPlay || inView) && !userPaused && !reduce) {
-      try {
-        player.mute(); // browsers only allow autoplay when muted
-      } catch (e) {}
-      play();
-    }
+    if ((wantPlay || inView) && !userPaused && !reduce) playWithRetry();
   }
 
   function go(i, autoplay) {
@@ -259,7 +279,7 @@ function whenFB(cb) {
       "Video " + (cur + 1) + " of " + n + (v.title ? " · " + v.title : "");
     wantPlay = !!autoplay;
     if (autoplay) userPaused = false;
-    if (mode === "iframe") return useIframe(autoplay);
+    if (mode === "iframe") return useIframe(autoplay || inView);
 
     clearPlayer();
     const my = ++token;
@@ -274,12 +294,12 @@ function whenFB(cb) {
 
     /* if the SDK never produces a player, switch to the iframe */
     timer = setTimeout(() => {
-      if (my === token) useIframe(autoplay);
+      if (my === token) useIframe(autoplay || inView);
     }, 8000);
 
     whenFB((ok) => {
       if (my !== token) return;
-      if (!ok) return useIframe(autoplay);
+      if (!ok) return useIframe(autoplay || inView);
       if (!subscribed) {
         FB.Event.subscribe("xfbml.ready", onReady);
         subscribed = true;
@@ -303,15 +323,15 @@ function whenFB(cb) {
         inView = en.isIntersecting;
         if (!player) return;
         if (inView) {
-          if (!userPaused && !reduce) play();
+          if (!userPaused && !reduce) playWithRetry();
         } else {
-          ignoreUntil = Date.now() + 600;
+          ignoreUntil = Date.now() + 1500;
           try {
             player.pause();
           } catch (e) {}
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.25, rootMargin: "-90px 0px 0px 0px" }, // 90px = sticky nav height
     ).observe(frame);
   }
 })();

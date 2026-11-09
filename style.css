@@ -152,6 +152,20 @@ img {
 .section.alt {
   background: var(--pine);
 }
+/* speakers section background (edit the two values below) */
+#speaker {
+  --speaker-bg: url("images/themes1.jpg"); /* same image as the themes section */
+  --speaker-tint: rgba(
+    8,
+    36,
+    27,
+    0.94
+  ); /* 0 = image fully visible, 1 = fully covered */
+  background:
+    linear-gradient(var(--speaker-tint), var(--speaker-tint)),
+    var(--speaker-bg) center/cover no-repeat,
+    var(--pine);
+}
 .title {
   font: 700 clamp(2rem, 4.5vw, 3rem)/1.1 var(--serif);
   color: var(--gold-hi);
@@ -317,53 +331,72 @@ img {
   color: var(--gold-hi);
 }
 
-/* themes */
-/* themes */
+/* themes section background (edit the two values below) */
+#themes {
+  --themes-bg: url("images/themes.jpg"); /* your background image */
+  --themes-tint: rgba(
+    4,
+    19,
+    14,
+    0.884
+  ); /* 0 = image fully visible, 1 = fully covered */
+  background:
+    linear-gradient(var(--themes-tint), var(--themes-tint)),
+    var(--themes-bg) center/cover no-repeat,
+    var(--ink);
+}
+
+/* themes cards */
 .themes {
   counter-reset: pill;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1.4rem;
 }
 .pill {
   position: relative;
   overflow: hidden;
-  padding: 2.6rem 1.6rem 2.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.9rem 1.4rem 1.7rem;
   text-align: center;
-  border: 1.5px solid rgba(216, 178, 90, 0.55);
-  border-radius: 26px;
+  border: 1.5px solid rgba(216, 178, 90, 0.5);
+  border-radius: 24px;
   background:
     radial-gradient(
-      circle at 50% 0%,
-      rgba(31, 209, 139, 0.16),
+      circle at 50% -10%,
+      rgba(31, 209, 139, 0.28),
       transparent 60%
     ),
-    linear-gradient(160deg, var(--pine-2), var(--pine));
+    linear-gradient(160deg, rgba(12, 49, 38, 0.82), rgba(4, 19, 14, 0.88));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   box-shadow:
-    inset 0 0 40px rgba(31, 209, 139, 0.06),
-    0 10px 30px rgba(0, 0, 0, 0.35);
+    inset 0 0 40px rgba(31, 209, 139, 0.07),
+    0 14px 36px rgba(0, 0, 0, 0.4);
   transition:
     transform 0.3s,
     border-color 0.3s,
     box-shadow 0.3s;
 }
-/* faint number in the corner */
+/* big faint number */
 .pill::before {
   counter-increment: pill;
   content: "0" counter(pill);
   position: absolute;
-  top: 0.9rem;
-  right: 1.3rem;
-  font: 700 2.6rem/1 var(--serif);
-  color: rgba(216, 178, 90, 0.22);
+  top: 0.6rem;
+  right: 1.1rem;
+  font: 700 2.3rem/1 var(--serif);
+  color: rgba(216, 178, 90, 0.2);
 }
-/* gold accent line on top */
+/* gold line on top */
 .pill::after {
   content: "";
   position: absolute;
   top: 0;
-  left: 20%;
-  right: 20%;
+  left: 18%;
+  right: 18%;
   height: 3px;
   border-radius: 0 0 6px 6px;
   background: linear-gradient(90deg, transparent, var(--gold-hi), transparent);
@@ -372,37 +405,80 @@ img {
   transform: translateY(-6px);
   border-color: var(--gold-hi);
   box-shadow:
-    inset 0 0 40px rgba(31, 209, 139, 0.1),
-    0 16px 40px rgba(0, 0, 0, 0.45),
-    0 0 34px rgba(216, 178, 90, 0.22);
+    inset 0 0 50px rgba(31, 209, 139, 0.12),
+    0 20px 46px rgba(0, 0, 0, 0.5),
+    0 0 36px rgba(216, 178, 90, 0.25);
 }
 .pill svg {
-  width: 84px;
-  height: 84px;
-  padding: 20px;
-  margin: 0 auto 1.3rem;
+  width: 74px;
+  height: 74px;
+  padding: 18px;
+  margin: 0 auto 1.1rem;
   border-radius: 50%;
   border: 1.5px solid var(--gold);
   background: radial-gradient(
     circle,
-    rgba(216, 178, 90, 0.18),
-    rgba(4, 19, 14, 0.6)
+    rgba(216, 178, 90, 0.22),
+    rgba(4, 19, 14, 0.65)
   );
-  box-shadow: 0 0 24px rgba(216, 178, 90, 0.2);
+  box-shadow:
+    0 0 0 8px rgba(216, 178, 90, 0.07),
+    0 0 28px rgba(216, 178, 90, 0.22);
   fill: none;
   stroke: var(--gold-hi);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.pill:hover svg {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 10px rgba(216, 178, 90, 0.1),
+    0 0 40px rgba(216, 178, 90, 0.38);
 }
 .pill h3 {
-  font: 700 1.6rem/1.2 var(--serif);
+  font: 700 1.45rem/1.2 var(--serif);
   color: var(--gold-hi);
-  margin-bottom: 0.5rem;
 }
-.pill p {
-  color: var(--muted);
-  font-size: 0.95rem;
+/* small gold divider under the title */
+.pill h3::after {
+  content: "";
+  display: block;
+  width: 52px;
+  height: 2px;
+  margin: 0.6rem auto 0.8rem;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.pill-tags {
+  list-style: none;
+  padding: 0.2rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+}
+.pill-tags li {
+  padding: 0.28rem 0.8rem;
+  border: 1px solid rgba(216, 178, 90, 0.45);
+  border-radius: 999px;
+  background: rgba(216, 178, 90, 0.08);
+  color: var(--gold-hi);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pill,
+  .pill svg {
+    transition: none;
+  }
+  .pill:hover,
+  .pill:hover svg {
+    transform: none;
+  }
 }
 
 /* speaker */
