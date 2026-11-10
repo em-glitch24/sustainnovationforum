@@ -14,6 +14,9 @@
           document.documentElement.classList.add("m-desktop");
         }
       })();
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("anim");
+      }
     </script>
     <title>2nd Sustainnovation Forum | Smart City Investment</title>
     <meta

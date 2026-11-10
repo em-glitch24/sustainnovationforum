@@ -335,3 +335,49 @@ function whenFB(cb) {
     ).observe(frame);
   }
 })();
+
+/* ===== Scroll animations (skipped if the visitor prefers reduced motion) ===== */
+(function () {
+  if (!document.documentElement.classList.contains("anim")) return;
+
+  /* tag(selector, animation, { base: start delay, step: stagger, cols: restart stagger every N items }) */
+  function tag(sel, type, o) {
+    o = o || {};
+    document.querySelectorAll(sel).forEach((el, i) => {
+      el.classList.add("rv", "rv-" + type);
+      const k = o.cols ? i % o.cols : i;
+      const d = (o.base || 0) + k * (o.step || 0);
+      el.style.setProperty("--d", d.toFixed(2) + "s");
+    });
+  }
+
+  tag(".section:not(#venue) .title", "up");
+  tag(".section:not(#venue) .sub", "up", { base: 0.12 });
+  tag(".vp-wrap", "zoom");
+  tag(".pill", "up", { step: 0.15, cols: 3 });
+  tag(".spk", "pop", { step: 0.1, cols: 3 });
+  tag(".timeline > li", "left");
+  tag(".venue-copy", "left");
+  tag(".venue-img", "right");
+  tag(".foot > *", "up", { step: 0.12 });
+
+  const tl = document.querySelector(".timeline");
+  if (tl) tl.classList.add("tl");
+
+  const items = document.querySelectorAll(".rv, .tl");
+  if (!("IntersectionObserver" in window)) {
+    items.forEach((el) => el.classList.add("in"));
+    return;
+  }
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((en) => {
+        if (en.isIntersecting) {
+          en.target.classList.add("in");
+          io.unobserve(en.target);
+        }
+      }),
+    { threshold: 0.01, rootMargin: "0px 0px -10% 0px" },
+  );
+  items.forEach((el) => io.observe(el));
+})();

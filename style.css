@@ -93,6 +93,7 @@ img {
 
 /* buttons */
 .btn {
+  position: relative;
   display: inline-block;
   padding: 0.85rem 1.9rem;
   border-radius: 999px;
@@ -101,11 +102,29 @@ img {
   font: 700 0.95rem var(--sans);
   color: #1b1404;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--gold-hi), var(--gold));
+  background:
+    linear-gradient(
+        100deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 65%
+      )
+      160% 0 / 250% 100% no-repeat,
+    linear-gradient(135deg, var(--gold-hi), var(--gold));
   box-shadow: 0 0 24px rgba(216, 178, 90, 0.3);
   transition:
     transform 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    background-position 0s;
+}
+.btn:hover {
+  background-position:
+    -80% 0,
+    0 0;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background-position 0.8s;
 }
 .btn:hover {
   transform: translateY(-2px);
@@ -1255,4 +1274,261 @@ input:focus {
   width: 80px;
   height: 80px;
   font-size: 2.6rem;
+}
+
+/* ===== Animations ===== */
+
+/* nav link underline (works without .anim) */
+.nav nav a:not(.btn) {
+  position: relative;
+}
+.nav nav a:not(.btn)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--gold-hi);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 0.3s;
+}
+.nav nav a:not(.btn):hover::after {
+  scale: 1 1;
+}
+
+/* gold underline under section titles */
+.title::after {
+  content: "";
+  display: block;
+  width: 90px;
+  height: 2px;
+  margin: 0.7rem auto 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.title.left::after {
+  margin-left: 0;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 34px;
+  }
+}
+@keyframes riseLeft {
+  from {
+    opacity: 0;
+    translate: -48px 0;
+  }
+}
+@keyframes riseRight {
+  from {
+    opacity: 0;
+    translate: 48px 0;
+  }
+}
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    translate: 0 20px;
+  }
+}
+@keyframes popIn {
+  from {
+    opacity: 0;
+    scale: 0.86;
+    translate: 0 28px;
+  }
+}
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    translate: 0 -100%;
+  }
+}
+@keyframes ringIn {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+@keyframes halo {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 12px rgba(4, 19, 14, 0.92),
+      0 0 0 13.5px rgba(216, 178, 90, 0.55),
+      0 0 44px rgba(216, 178, 90, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 12px rgba(4, 19, 14, 0.92),
+      0 0 0 13.5px rgba(216, 178, 90, 0.9),
+      0 0 76px rgba(216, 178, 90, 0.55);
+  }
+}
+@keyframes blip {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(31, 209, 139, 0.7),
+      0 0 12px var(--emerald);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 0 0 16px rgba(31, 209, 139, 0),
+      0 0 12px var(--emerald);
+  }
+}
+@keyframes ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(216, 178, 90, 0.55);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 16px rgba(216, 178, 90, 0);
+  }
+}
+@keyframes vipGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 4px rgba(216, 178, 90, 0.12),
+      0 0 40px rgba(31, 209, 139, 0.28);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(216, 178, 90, 0.24),
+      0 0 64px rgba(31, 209, 139, 0.5);
+  }
+}
+
+/* hero: plays on page load */
+.anim .nav {
+  animation: dropIn 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.anim .hero-copy > * {
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.anim .hero-copy > :nth-child(1) {
+  animation-delay: 0.15s;
+}
+.anim .hero-copy > :nth-child(2) {
+  animation-delay: 0.3s;
+}
+.anim .hero-copy > :nth-child(3) {
+  animation-delay: 0.45s;
+}
+.anim .hero-copy > :nth-child(4) {
+  animation-delay: 0.6s;
+}
+.anim .hero-copy > :nth-child(5) {
+  animation-delay: 0.7s;
+}
+.anim .hero-copy > :nth-child(6) {
+  animation-delay: 0.8s;
+}
+.anim .hero-copy > .btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: ring 2.4s ease-out 1.8s infinite;
+}
+.anim .feature .vip {
+  animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s backwards;
+}
+.anim .guest-ring {
+  animation:
+    ringIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s backwards,
+    float 7s ease-in-out 1.6s infinite,
+    halo 4s ease-in-out 1.6s infinite;
+}
+.anim .guest-ring::after {
+  animation: blip 2.2s ease-out 1.6s infinite;
+}
+.anim .feature h2 {
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 1s backwards;
+}
+.anim .feature .role {
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 1.15s backwards;
+}
+
+/* scroll reveals (classes added by main.js) */
+.anim .rv:not(.in) {
+  opacity: 0;
+}
+.anim .rv.in {
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0s) both;
+}
+.anim .rv-left.in {
+  animation-name: riseLeft;
+}
+.anim .rv-right.in {
+  animation-name: riseRight;
+}
+.anim .rv-zoom.in {
+  animation-name: zoomIn;
+}
+.anim .rv-pop.in {
+  animation-name: popIn;
+}
+
+/* title underline grows in */
+.anim .title::after {
+  width: 0;
+  transition: width 1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s;
+}
+.anim .title.in::after,
+.anim .venue-copy.in .title::after {
+  width: 90px;
+}
+
+/* VIP speaker card keeps glowing after it appears */
+.anim .spk.vip-card.in {
+  animation:
+    popIn 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0s) both,
+    vipGlow 3.5s ease-in-out 1.6s infinite;
+}
+
+/* programme: the gold line draws down, dots pop in */
+.anim .timeline {
+  position: relative;
+  border-left-color: transparent;
+}
+.anim .timeline::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--gold);
+  transform-origin: top;
+  scale: 1 0;
+  transition: scale 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.anim .timeline.in::before {
+  scale: 1 1;
+}
+.anim .timeline > li::before {
+  scale: 0;
+  transition: scale 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 0.15s;
+}
+.anim .timeline > li.in::before {
+  scale: 1;
 }
