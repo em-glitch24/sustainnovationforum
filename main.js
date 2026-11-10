@@ -359,7 +359,6 @@ function whenFB(cb) {
   tag(".timeline > li", "left");
   tag(".venue-copy", "left");
   tag(".venue-img", "right");
-  tag(".foot > *", "up", { step: 0.12 });
 
   const tl = document.querySelector(".timeline");
   if (tl) tl.classList.add("tl");
@@ -377,7 +376,7 @@ function whenFB(cb) {
           io.unobserve(en.target);
         }
       }),
-    { threshold: 0.01, rootMargin: "0px 0px -10% 0px" },
+    { threshold: 0.01, rootMargin: "0px 0px -60px 0px" },
   );
   items.forEach((el) => io.observe(el));
 })();

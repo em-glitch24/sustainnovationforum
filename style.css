@@ -357,7 +357,7 @@ img {
     4,
     19,
     14,
-    0.884
+    0.923
   ); /* 0 = image fully visible, 1 = fully covered */
   background:
     linear-gradient(var(--themes-tint), var(--themes-tint)),
@@ -1531,4 +1531,61 @@ input:focus {
 }
 .anim .timeline > li.in::before {
   scale: 1;
+}
+
+/* ===== Programme background: minimal lines ===== */
+#programme {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+#programme > .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* two thin vertical lines, fading out at the top and bottom */
+#programme::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(216, 178, 90, 0.18), rgba(216, 178, 90, 0.18)) 12% 0 /
+      1px 100% no-repeat,
+    linear-gradient(rgba(216, 178, 90, 0.18), rgba(216, 178, 90, 0.18)) 88% 0 /
+      1px 100% no-repeat;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 20%,
+    #000 80%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 20%,
+    #000 80%,
+    transparent
+  );
+}
+
+/* one dot on each line, plus a single faint arc in the top corner */
+#programme::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 30%, var(--gold) 0 3px, transparent 4px),
+    radial-gradient(circle at 88% 70%, var(--emerald) 0 3px, transparent 4px),
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 359px,
+      rgba(216, 178, 90, 0.14) 360px,
+      transparent 362px
+    );
 }
